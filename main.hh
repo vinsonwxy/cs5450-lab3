@@ -57,10 +57,11 @@ private:
 	void sendMsgNbr(QByteArray, int);
 	void sendMsgRandom(QByteArray);
 	void sendStatus(quint16); // Update others of status
-	QUdpSocket * udpSocket;
+	QUdpSocket *udpSocket;
 	qint32 seqNum;
 	QString origin;
-	QTimer timer, aeTimer;
+	QTimer *timer;
+    QTimer *aeTimer;
 	QMap<QString, QVector<QByteArray> *> *msgLog; // History of messages
 };
 

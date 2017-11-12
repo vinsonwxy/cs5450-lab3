@@ -135,14 +135,14 @@ void NetSocket::sendMessage(QString msg)
     emit sentMessage(msg);
 }
 
-void sendMsgNbr (QByteArray body, int p)
+void NetSocket::sendMsgNbr (QByteArray body, int p)
 {
     udpSocket->writeDatagram(body, QHostAddress::LocalHost, p);
 
     timer->start(2000);
 }
 
-void sendMsgRandom(QByteArray datagram)
+void NetSocket::sendMsgRandom(QByteArray datagram)
 {
     int i = qrand() % numNbr;
 
@@ -215,7 +215,7 @@ void NetSocket::recvMessage(){
     }
 }
 
-void NetSocket::sendStatus(int p)
+void NetSocket::sendStatus(quint16 p)
 {
     QMap<QString, QVariant> want;
     for (msglog_iter iter = msgLog->begin(); iter != msgLog->end(); iter++) {
