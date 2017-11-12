@@ -60,8 +60,8 @@ private:
 	QUdpSocket *udpSocket;
 	qint32 seqNum;
 	QString origin;
-	QTimer *timer;
-    QTimer *aeTimer;
+	QTimer timer;
+    QTimer aeTimer;
 	QMap<QString, QVector<QByteArray> *> *msgLog; // History of messages
 };
 
