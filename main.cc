@@ -74,6 +74,8 @@ NetSocket::NetSocket()
 bool NetSocket::bind()
 {
 	// Try to bind to each of the range myPortMin..myPortMax in turn.
+    udpSocket = new QUdpSocket(this);
+
 	for (int p = myPortMin; p <= myPortMax; p++) {
 		if (udpSocket->bind(QHostAddress::LocalHost, p)) { //(QUdpSocket::bind(p)) {
 			qDebug() << "bound to UDP port " << p;
@@ -172,23 +174,22 @@ void NetSocket::recvMessage(){
                 int lastNum = iter.value().toInt();
                 if (!msgLog->contains(origin)) {
                     qDebug("New Node: %s", origin);
-                    msgLog->insert(origin, new QVector<QByteArray>);
-                    sendStatus(port);
+                    msgLog->insert(origin, new QVector <QByteArray>);
+                    sendStatus(userPort);
                     return;
                 } else if (msgLog->value(origin)->count() < lastNum) {
                     qDebug("Outdate messages for %s", origin);
-                    sendStatus(port);
+                    sendStatus(userPort);
                     return;
-                } else if ((msgLog->value(origin)->count() > lastNum) {
+                } else if (msgLog->value(origin)->count() > lastNum) {
                     qDebug("Updating outdated message for %s", origin);
-                    QVector<QByteArray> * updatedMsg = msgLog->value(origin);
-                    sendMsgNbr(updatedMsg->at(lastNum), userPort)
+                    QVector <QByteArray> *updatedMsg = msgLog->value(origin);
+                    sendMsgNbr(updatedMsg->at(lastNum), userPort);
                     return;
                 }
+                qDebug("Status is up-to-date");
+                sendStatusRandom();
             }
-
-            qDebug("Status is up-to-date");
-            sendStatusRandom();
         }
 
         else { //Chat message
@@ -206,7 +207,7 @@ void NetSocket::recvMessage(){
                 msgLog->value(username)->append(datagram);
                 emit incomingMessage(msg, username);
 
-                sendMsgRandom();
+                sendMsgRandom(datagram);
             }
             // Send status as ack
             sendStatus(userPort);
@@ -229,7 +230,7 @@ void NetSocket::sendStatus(int p)
     out << want;
     //Send out
     udpSocket->writeDatagram(body, QHostAddress::LocalHost, p);
-    qDebug("Status sent to p%d", p)
+    qDebug("Status sent to p%d", p);
 }
 
 void NetSocket::sendStatusRandom()

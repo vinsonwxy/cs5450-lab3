@@ -5,6 +5,7 @@
 #include <QTextEdit>
 #include <QLineEdit>
 #include <QUdpSocket>
+#include <QTimer>
 
 typedef QMap<QString, QVariant>::iterator qmap_iter;
 typedef QMap<QString, QVector<QByteArray>*>::iterator msglog_iter;
@@ -55,7 +56,7 @@ private:
 	int neighbors[2];
 	void sendMsgNbr(QByteArray, int);
 	void sendMsgRandom(QByteArray);
-	void sendStatus(int); // Update others of status
+	void sendStatus(quint16); // Update others of status
 	QUdpSocket * udpSocket;
 	qint32 seqNum;
 	QString origin;
