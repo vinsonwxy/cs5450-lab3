@@ -44,7 +44,7 @@ void ChatDialog::gotReturnPressed()
 	// Insert some networking code here...
     emit createMessage(textline->text());
 
-	qDebug() << "FIX: send message to other peers: " << textline->text();
+	//qDebug() << "FIX: send message to other peers: " << textline->text();
 	textview->append(textline->text());
 
 	// Clear the textline to get ready for the next input message.
@@ -80,9 +80,12 @@ bool NetSocket::bind()
 		if (udpSocket->bind(QHostAddress::LocalHost, p)) { //(QUdpSocket::bind(p)) {
 			qDebug() << "bound to UDP port " << p;
 
-            if (p == myPortMin || p == myPortMax) {
+            if (p == myPortMin) {
                 numNbr = 1;
-                neighbors[0] = 1;
+                neighbors[0] = p + 1;
+            } else if (p == myPortMax) {
+                numNbr = 1;
+                neighbors[0] = p - 1;
             } else {
                 numNbr = 2;
                 neighbors[0] = p - 1;
@@ -95,8 +98,8 @@ bool NetSocket::bind()
             msgLog = new QMap<QString, QVector<QByteArray> *>();
             timer = new QTimer(this);
             aeTimer = new QTimer(this);
-            connect(&timer, SIGNAL(timeout()), this, SLOT(timeout()));
-            connect(&aeTimer, SIGNAL(timeout()), this, SLOT(sendStatusRandom()));
+            connect(timer, SIGNAL(timeout()), this, SLOT(timeout()));
+            connect(aeTimer, SIGNAL(timeout()), this, SLOT(sendStatusRandom()));
 
 			return true;
 		}
@@ -167,7 +170,7 @@ void NetSocket::recvMessage(){
         if(map.contains("Want")) { //Status message
             timer->stop(); //Ack response
             qDebug("REC status message");
-            QMap<QString, QVariant> want = map.value("Want");
+            QMap<QString, QVariant> want = map;
 
             for (qmap_iter iter = want.begin(); iter != want.end(); iter++) {
                 QString origin = iter.key();
@@ -260,7 +263,7 @@ int main(int argc, char **argv)
 		exit(1);
 
     //message UI -> sock
-    QObject::connect(&dialog, SIGNAL(createMessage(QString)), &sock, SLOT(sendMsgRandom(QString)));
+    QObject::connect(&dialog, SIGNAL(createMessage(QString)), &sock, SLOT(sendMessage(QString)));
     //message sock ->UI
     QObject::connect(&sock, SIGNAL(incomingMessage(QString, QString)), &dialog, SLOT(gotMessage(QString, QString)));
     QObject::connect(&sock, SIGNAL(sentMessage(QString)), &dialog, SLOT(gotMessage(QString)));
